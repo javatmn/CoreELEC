@@ -261,4 +261,5 @@ post_install() {
   enable_service hwdb.service
 
   enable_service debian-mount.service
+  enable_service tbox.service
 }
