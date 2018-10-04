@@ -49,6 +49,7 @@ post_makeinstall_target() {
 
   sed -e "s|^#PermitRootLogin.*|PermitRootLogin yes|g" \
       -e "s|^#StrictModes.*|StrictModes no|g" \
+      -e "s|^#PidFile.*|PidFile /var/run/sshd-le.pid|g" \
       -i $INSTALL/etc/ssh/sshd_config
 
   echo "PubkeyAcceptedKeyTypes +ssh-dss" >> $INSTALL/etc/ssh/sshd_config
