@@ -72,6 +72,14 @@ if [ "$BUILD_ANDROID_BOOTIMG" = "yes" ]; then
   PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET mkbootimg:host"
 fi
 
+pre_patch() {
+    # patch wireguard
+    local   wg="wireguard"
+    local   wgDir=$(get_build_dir $wg)
+    $SCRIPTS/unpack $wg
+    (cd $PKG_BUILD; $wgDir/contrib/kernel-tree/create-patch.sh | patch -p1)
+}
+
 post_patch() {
   cp $PKG_KERNEL_CFG_FILE $PKG_BUILD/.config
   if [ ! "$BUILD_ANDROID_BOOTIMG" = "yes" ]; then
