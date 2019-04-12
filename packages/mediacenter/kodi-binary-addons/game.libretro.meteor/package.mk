@@ -2,9 +2,9 @@
 # Copyright (C) 2016-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="game.libretro.meteor"
-PKG_VERSION="8e7e672f8c1ba250ba3b79e30f7f4936279d1e08"
-PKG_SHA256="92393f082ebaeffda9f875ebee43c5fbad565b8c56f0a673b99b2b96371fbed3"
-PKG_REV="107"
+PKG_VERSION="1.4.0.1-Leia"
+PKG_SHA256="3e1b973787e6f3345d9596794c04ee442a704f445c332bd4c42beeb24e601d85"
+PKG_REV="111"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/kodi-game/game.libretro.meteor"

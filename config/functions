@@ -1,5 +1,6 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
+# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
 
 ### FUNCTION HELPERS ###
 # die (message, code) abort with optional message and code
@@ -20,7 +21,7 @@ listcontains() {
 }
 
 # remove item(s) from list.
-# looping makes it greedy (eg. removefromlist "abc def ghi" "(abc|def)" will work).
+# looping makes it greedy (eg. listremoveitem "abc def ghi" "(abc|def)" removes both "abc" and "def").
 listremoveitem() {
   local data="${1}" odata tmp_array
   if [ -n "$1" -a -n "$2" ]; then
@@ -37,51 +38,95 @@ listremoveitem() {
 
 print_color() {
   local clr_name="$1" clr_text="$2" clr_actual
+  local black red green yellow blue magenta cyan white endcolor
+  local boldblack boldred boldgreen boldyellow boldblue boldmagenta boldcyan boldwhite
+
+  [ -z "${clr_name}" ] && return 0
 
   if [ "$DISABLE_COLORS" = "yes" ]; then
     [ $# -eq 2 ] && echo -en "${clr_text}"
     return 0
   fi
 
+  black="\e[0;30m"
+  boldblack="\e[1;30m"
+  red="\e[0;31m"
+  boldred="\e[1;31m"
+  green="\e[0;32m"
+  boldgreen="\e[1;32m"
+  yellow="\e[0;33m"
+  boldyellow="\e[1;33m"
+  blue="\e[0;34m"
+  boldblue="\e[1;34m"
+  magenta="\e[0;35m"
+  boldmagenta="\e[1;35m"
+  cyan="\e[0;36m"
+  boldcyan="\e[1;36m"
+  white="\e[0;37m"
+  boldwhite="\e[1;37m"
+  endcolor="\e[0m"
+
+  # $clr_name can be a color variable (boldgreen etc.) or a
+  # "standard" color determined by an indirect name (CLR_ERROR etc.)
+  #
+  # If ${!clr_name} doesn't exist then assume it's a standard color.
+  # If ${!clr_name} does exist then check it's not a custom color mapping.
+  # Custom color mappings can be configured in options files.
+  #
   clr_actual="${!clr_name}"
 
-  # If $clr_name isn't another colour variable (boldgreen etc.), then
-  # assume it's an actual colour escape sequence.
-  #
-  # Otherwise if $clr_name isn't defined, or doesn't exist, then use
-  # standard colours.
-  #
-  if [[ -n "${clr_actual}" ]] && [[ -z "${!clr_actual}" ]]; then
-    clr_actual="${clr_name}"
-  elif [[ -z "${clr_actual}" ]] || [[ -z "${!clr_actual}" ]]; then
+  if [ -n "${clr_actual}" ]; then
+    clr_actual="${!clr_actual}"
+  else
     case "${clr_name}" in
-      CLR_ERROR)        clr_actual="boldred";;
-      CLR_WARNING)      clr_actual="boldred";;
-      CLR_WARNING_DIM)  clr_actual="red";;
+      CLR_ERROR)        clr_actual="${boldred}";;
+      CLR_WARNING)      clr_actual="${boldred}";;
+      CLR_WARNING_DIM)  clr_actual="${red}";;
 
-      CLR_APPLY_PATCH)  clr_actual="boldgreen";;
-      CLR_AUTORECONF)   clr_actual="boldmagenta";;
-      CLR_BUILD)        clr_actual="boldyellow";;
-      CLR_TOOLCHAIN)    clr_actual="boldmagenta";;
-      CLR_CLEAN)        clr_actual="boldred";;
-      CLR_FIXCONFIG)    clr_actual="boldyellow";;
-      CLR_GET)          clr_actual="boldcyan";;
-      CLR_INFO)         clr_actual="boldgreen";;
-      CLR_INSTALL)      clr_actual="boldgreen";;
-      CLR_PATCH_DESC)   clr_actual="boldwhite";;
-      CLR_TARGET)       clr_actual="boldwhite";;
-      CLR_UNPACK)       clr_actual="boldcyan";;
+      CLR_APPLY_PATCH)  clr_actual="${boldgreen}";;
+      CLR_AUTORECONF)   clr_actual="${boldmagenta}";;
+      CLR_BUILD)        clr_actual="${boldyellow}";;
+      CLR_TOOLCHAIN)    clr_actual="${boldmagenta}";;
+      CLR_CLEAN)        clr_actual="${boldred}";;
+      CLR_FIXCONFIG)    clr_actual="${boldyellow}";;
+      CLR_GET)          clr_actual="${boldcyan}";;
+      CLR_INFO)         clr_actual="${boldgreen}";;
+      CLR_INSTALL)      clr_actual="${boldgreen}";;
+      CLR_PATCH_DESC)   clr_actual="${boldwhite}";;
+      CLR_TARGET)       clr_actual="${boldwhite}";;
+      CLR_UNPACK)       clr_actual="${boldcyan}";;
 
-      CLR_ENDCOLOR)     clr_actual="endcolor";;
+      CLR_ENDCOLOR)     clr_actual="${endcolor}";;
 
-      *)                clr_actual="endcolor";;
+      *)                clr_actual="${endcolor}";;
     esac
   fi
 
   if [ $# -eq 2 ]; then
-    echo -en "${!clr_actual}${clr_text}${endcolor}"
+    echo -en "${clr_actual}${clr_text}${endcolor}"
   else
-    echo -en "${!clr_actual}"
+    echo -en "${clr_actual}"
+  fi
+}
+
+# print build progress messages
+# param1: message color, p2: label, p3: text, p4: indent (optional)
+build_msg() {
+  local spaces
+
+  [ -n "${BUILD_INDENT}" ] && spaces="$(printf "%${BUILD_INDENT}c" " ")" || spaces=""
+
+  if [ -n "${3}" ]; then
+    echo -e "${spaces}$(print_color "${1}" "${2}")      ${3}" >&${SILENT_OUT}
+  else
+    echo -e "${spaces}$(print_color "${1}" "${2}")" >&${SILENT_OUT}
+  fi
+
+  # pad left space to create "indent" effect
+  if [ "${4}" = "indent" ]; then
+    export BUILD_INDENT=$((${BUILD_INDENT:-0}+${BUILD_INDENT_SIZE}))
+  elif [ -n "${4}" ]; then
+    die "ERROR: ${0} unexpected parameter: ${4}"
   fi
 }
 
@@ -169,7 +214,14 @@ setup_toolchain() {
     NINJA_OPTS="$NINJA_OPTS -j1"
     export MAKEFLAGS="-j1"
   else
+    NINJA_OPTS="$NINJA_OPTS -j$CONCURRENCY_MAKE_LEVEL"
     export MAKEFLAGS="-j$CONCURRENCY_MAKE_LEVEL"
+  fi
+
+  # verbose flag
+  if flag_enabled "verbose" "no"; then
+    NINJA_OPTS="$NINJA_OPTS -v"
+    export MAKEFLAGS="$MAKEFLAGS V=1 VERBOSE=1"
   fi
 
   case "$1" in
@@ -254,6 +306,7 @@ setup_toolchain() {
         mkdir -p $TOOLCHAIN/etc
         echo "SET(CMAKE_SYSTEM_NAME Linux)" >> $CMAKE_CONF
         echo "SET(CMAKE_SYSTEM_VERSION 1)"  >> $CMAKE_CONF
+        echo "SET(CMAKE_SYSTEM_PROCESSOR ${MACHINE_HARDWARE_NAME})" >> $CMAKE_CONF
         echo "SET(CMAKE_C_COMPILER   $CC)"  >> $CMAKE_CONF
         echo "SET(CMAKE_CXX_COMPILER $CXX)" >> $CMAKE_CONF
         echo "SET(CMAKE_CPP_COMPILER $CXX)" >> $CMAKE_CONF
@@ -280,7 +333,7 @@ setup_toolchain() {
 }
 
 create_meson_conf() {
-  local endian root
+  local endian root properties
   case "$1" in
     target|init)    endian="little"
                     root="$SYSROOT_PREFIX/usr"
@@ -289,6 +342,8 @@ create_meson_conf() {
                     root="$TOOLCHAIN"
                     ;;
   esac
+
+  properties="PKG_MESON_PROPERTIES_${1^^}"
 
   cat > $2 <<EOF
 [binaries]
@@ -309,6 +364,7 @@ endian = '$endian'
 root = '$root'
 $(python -c "import os; print('c_args = {}'.format([x for x in os.getenv('CFLAGS').split()]))")
 $(python -c "import os; print('c_link_args = {}'.format([x for x in os.getenv('LDFLAGS').split()]))")
+${!properties}
 EOF
 }
 
@@ -426,33 +482,50 @@ debug_strip() {
 
 init_package_cache() {
   local _ANCHOR="@?+?@" DIR
+  local temp_global temp_local
 
   # If the package caches are unset, then populate them
   if [ -z "${_CACHE_PACKAGE_LOCAL}" -o -z "${_CACHE_PACKAGE_GLOBAL}" ]; then
-    _CACHE_PACKAGE_LOCAL="${BUILD}/.cache_package_local"
-    _CACHE_PACKAGE_GLOBAL="${BUILD}/.cache_package_global"
-    mkdir -p "${BUILD}"
-    : > "${_CACHE_PACKAGE_LOCAL}"
-    : > "${_CACHE_PACKAGE_GLOBAL}"
+    temp_global="$(mktemp)"
+    temp_local="$(mktemp)"
 
     # cache project/device folder for a package
     if [ -n $DEVICE ]; then
       for DIR in $(find $ROOT/projects/$PROJECT/devices/$DEVICE/packages -type d 2>/dev/null); do
-        [ -r "$DIR/package.mk" ] && echo "${DIR}${_ANCHOR}" >> "${_CACHE_PACKAGE_LOCAL}"
+        [ -r "$DIR/package.mk" ] && echo "${DIR}${_ANCHOR}" >> "${temp_local}"
       done
     fi
 
     # cache project folder for a package
     for DIR in $(find $ROOT/projects/$PROJECT/packages -type d 2>/dev/null); do
-      [ -r "$DIR/package.mk" ] && echo "${DIR}${_ANCHOR}" >> "${_CACHE_PACKAGE_LOCAL}"
+      [ -r "$DIR/package.mk" ] && echo "${DIR}${_ANCHOR}" >> "${temp_local}"
     done
 
     # cache packages folder
     for DIR in $(find $ROOT/$PACKAGES -type d 2>/dev/null); do
-      [ -r "$DIR/package.mk" ] && echo "${DIR}${_ANCHOR}" >> "${_CACHE_PACKAGE_GLOBAL}"
+      [ -r "$DIR/package.mk" ] && echo "${DIR}${_ANCHOR}" >> "${temp_global}"
     done
 
+    _CACHE_PACKAGE_LOCAL="${BUILD}/.cache_package_local"
+    _CACHE_PACKAGE_GLOBAL="${BUILD}/.cache_package_global"
     export _CACHE_PACKAGE_LOCAL _CACHE_PACKAGE_GLOBAL
+
+    # overwrite existing cache files only when they are invalid, or not yet created
+    mkdir -p "$(dirname "${_CACHE_PACKAGE_GLOBAL}")"
+    if [ -f "${_CACHE_PACKAGE_LOCAL}" ] && cmp -s "${temp_local}" "${_CACHE_PACKAGE_LOCAL}"; then
+      rm "${temp_local}"
+    else
+      mv "${temp_local}" "${_CACHE_PACKAGE_LOCAL}"
+    fi
+    if [ -f "${_CACHE_PACKAGE_GLOBAL}" ] && cmp -s "${temp_global}" "${_CACHE_PACKAGE_GLOBAL}"; then
+      rm "${temp_global}"
+    else
+      mv "${temp_global}" "${_CACHE_PACKAGE_GLOBAL}"
+    fi
+  fi
+
+  if [ -z "${_DEBUG_DEPENDS_LIST+x}" ]; then
+    set_debug_depends
   fi
 }
 
@@ -617,8 +690,7 @@ do_autoreconf() {
 get_pkg_variable() {
   if [ -n "$1" -a -n "$2" ] ; then
     if [ "$1" != "$PKG_NAME" ]; then
-      cd $ROOT
-      . config/options $1 &>/dev/null
+      source_package "${1}"
     fi
     echo "${!2}"
   fi
@@ -739,6 +811,127 @@ find_file_path() {
 
 find_dir_path() {
   find_path -d "$1" "$2"
+}
+
+# p1: name of function to test for
+# return 0 if function exists, 1 if not
+pkg_call_exists() {
+  [ "$(type -t ${1})" = "function" ] && return 0 || return 1
+}
+
+# p1: name of function to execute unconditionally
+# testing the exit code value of this function is likely to break set -e fail-on-error behaviour
+pkg_call() {
+  [ -n "${PKG_NAME}" ] || die "$(print_color CLR_ERROR "FAILURE: Cannot call ${1} package function when package is not known!")"
+
+  ${1}
+}
+
+unset_functions() {
+  local target
+
+  unset -f configure_package
+
+  unset -f pre_unpack unpack post_unpack
+  unset -f pre_patch post_patch
+
+  for target in target host init bootstrap; do
+    unset -f pre_build_${target}
+    unset -f pre_configure_${target} configure_${target} post_configure_${target}
+    unset -f pre_make_${target} make_${target} post_make_${target}
+    unset -f pre_makeinstall_${target} makeinstall_${target} post_makeinstall_${target}
+  done
+
+  unset -f pre_install post_install
+
+  unset -f addon
+}
+
+# p1: name of package to be sourced
+source_package() {
+  local opwd="${PWD}"
+
+  # Don't use BUILD_WITH_DEBUG in "global" package.mk - instead, call the function
+  # build_with_debug() directly as the function depends on various package.mk
+  # variables that will be in the process of being configured. Once package.mk is
+  # fully sourced we can set this variable and use it in situations where we know the
+  # package has already been sourced.
+  unset BUILD_WITH_DEBUG
+
+  reset_pkg_vars
+  unset MAKELEVEL
+  unset_functions
+
+  if [ -n "${1}" ]; then
+    PKG_DIR="$(get_pkg_directory ${1})"
+
+    [ -n "$PKG_DIR" -a -r $PKG_DIR/package.mk ] || die "FAILURE: unable to source package - ${1}/package.mk does not exist"
+
+    cd "${ROOT}"
+    . ${PKG_DIR}/package.mk || die "FAILURE: an error occurred while sourcing ${PKG_DIR}/package.mk"
+    cd "${opwd}"
+
+    PKG_SHORTDESC="${PKG_SHORTDESC:-${PKG_NAME} (autogenerated)}"
+    PKG_LONGDESC="${PKG_LONGDESC:-${PKG_NAME} (autogenerated)}"
+
+    if [ "$PKG_IS_ADDON" = "yes" -o "$PKG_IS_ADDON" = "embedded" ] ; then
+      [ -z $PKG_SECTION ] && PKG_ADDON_ID="$PKG_NAME" || PKG_ADDON_ID="${PKG_SECTION//\//.}.$PKG_NAME"
+      [ "$PKG_ADDON_IS_STANDALONE" != "yes" ] && PKG_NEED_UNPACK="${PKG_NEED_UNPACK} $(get_pkg_directory $MEDIACENTER)"
+    fi
+
+    # Automatically set PKG_SOURCE_NAME unless it is already defined.
+    # PKG_SOURCE_NAME will be automatically set to a name based on
+    # the $PKG_NAME-$PKG_VERSION convention.
+    #
+    # Any $PKG_URL that references more than a single url will abort
+    # the build as these are no longer supported - use mkpkg instead.
+    if [ -n "$PKG_URL" -a -z "$PKG_SOURCE_NAME" ]; then
+      if [[ $PKG_URL =~ .*\ .* ]]; then
+        echo "Error - packages with multiple urls are no longer supported, use mkpkg."
+        echo "$PKG_URL"
+        die
+      fi
+      if [[ ${PKG_URL} =~ .git$ || ${PKG_URL} =~ ^git:// ]]; then
+        PKG_SOURCE_NAME=${PKG_NAME}-${PKG_VERSION}
+      elif [[ ${PKG_URL} =~ ^file:// ]]; then
+        PKG_SOURCE_NAME=${PKG_URL#file://}
+        # if no specific PKG_TAR_COPY_OPTS then default to excluding .git and .svn as they can be huge
+        [ -z "${PKG_TAR_COPY_OPTS+x}" ] && PKG_TAR_COPY_OPTS="--exclude=.git --exclude=.svn"
+      else
+        PKG_SOURCE_NAME="${PKG_URL##*/}"
+        case $PKG_SOURCE_NAME in
+          ${PKG_NAME}-${PKG_VERSION}.*)
+            PKG_SOURCE_NAME=$PKG_SOURCE_NAME
+            ;;
+          *.tar | *.tbz | *.tgz | *.txz | *.7z | *.zip)
+            PKG_SOURCE_NAME=${PKG_NAME}-${PKG_VERSION}.${PKG_SOURCE_NAME##*\.}
+            ;;
+          *.tar.bz2 | *.tar.gz | *.tar.xz)
+            PKG_SOURCE_NAME=${PKG_NAME}-${PKG_VERSION}.tar.${PKG_SOURCE_NAME##*\.}
+            ;;
+          *.diff | *.patch | *.diff.bz2 | *.patch.bz2 | patch-*.bz2 | *.diff.gz | *.patch.gz | patch-*.gz)
+            PKG_SOURCE_NAME=$PKG_SOURCE_NAME
+            ;;
+          *)
+            PKG_SOURCE_NAME=${PKG_NAME}-${PKG_VERSION}.${PKG_SOURCE_NAME##*\.}
+            ;;
+        esac
+      fi
+    fi
+
+    PKG_BUILD="$BUILD/${PKG_NAME}-${PKG_VERSION}"
+  fi
+
+  build_with_debug && BUILD_WITH_DEBUG="yes" || BUILD_WITH_DEBUG="no"
+
+  # Late variable binding - allow the package to now evaluate any variables
+  # that we may have initialised after sourcing the package, typically
+  # PKG_BUILD etc.
+  if [ -n "${PKG_NAME}" ]; then
+    if pkg_call_exists configure_package; then
+      pkg_call configure_package
+    fi
+  fi
 }
 
 
@@ -871,6 +1064,7 @@ install_addon_images() {
 
 create_addon_xml() {
   local addon_xml addon_version addon_name provider_name requires requires_addonname requires_addonversion screenshots
+  local tmp_changelog
 
   addon_xml="$1/addon.xml"
 
@@ -894,11 +1088,14 @@ done
   fi
 
   if [ -f $PKG_DIR/changelog.txt ]; then
+    tmp_changelog="$(mktemp)"
+    cat ${PKG_DIR}/changelog.txt | xmlstarlet esc >"${tmp_changelog}"
     sed -e "/@PKG_ADDON_NEWS@/ \
          {
-           r $PKG_DIR/changelog.txt
+           r ${tmp_changelog}
            d
          }" -i "$addon_xml"
+    rm -f "${tmp_changelog}"
   else
     sed -e "s|@PKG_ADDON_NEWS@||g" -i "$addon_xml"
   fi

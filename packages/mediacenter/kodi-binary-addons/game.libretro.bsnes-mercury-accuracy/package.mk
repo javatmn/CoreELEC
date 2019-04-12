@@ -2,9 +2,9 @@
 # Copyright (C) 2016-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="game.libretro.bsnes-mercury-accuracy"
-PKG_VERSION="efee3c457301f963c8b95cf94a96f24d5cf9f83a"
-PKG_SHA256="368c4b101c3c0f533683448a4437e8a81b297290bec03e059707be08430965e7"
-PKG_REV="109"
+PKG_VERSION="0.94.0.2-Leia"
+PKG_SHA256="f4acff531d4956cc4697f1d4f91b65d94d2cdd69bd95ef805bad7a95565a3278"
+PKG_REV="114"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/kodi-game/game.libretro.bsnes-mercury-accuracy"

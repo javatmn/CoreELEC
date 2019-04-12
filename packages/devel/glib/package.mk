@@ -9,7 +9,7 @@ PKG_LICENSE="LGPL"
 PKG_SITE="http://www.gtk.org/"
 PKG_URL="http://ftp.gnome.org/pub/gnome/sources/glib/${PKG_VERSION%.*}/$PKG_NAME-$PKG_VERSION.tar.xz"
 PKG_DEPENDS_TARGET="toolchain zlib libffi Python2:host util-linux"
-PKG_DEPENDS_HOST="libffi:host pcre:host"
+PKG_DEPENDS_HOST="libffi:host pcre:host zlib:host"
 PKG_LONGDESC="A library which includes support routines for C such as lists, trees, hashes, memory allocation."
 PKG_TOOLCHAIN="autotools"
 
@@ -37,14 +37,6 @@ PKG_CONFIGURE_OPTS_TARGET="ac_cv_func_snprintf_c99=yes \
                            --with-threads=posix \
                            --with-pcre=internal \
                            --with-python=python"
-
-post_makeinstall_target() {
-  mkdir -p $SYSROOT_PREFIX/usr/lib/pkgconfig
-    cp g*-2.0.pc $SYSROOT_PREFIX/usr/lib/pkgconfig
-
-  mkdir -p $SYSROOT_PREFIX/usr/share/aclocal
-    cp ../m4macros/glib-gettext.m4 $SYSROOT_PREFIX/usr/share/aclocal
-}
 
 post_makeinstall_target() {
   rm -rf $INSTALL/usr/bin

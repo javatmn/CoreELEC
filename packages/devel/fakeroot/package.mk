@@ -1,5 +1,6 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2009-2016 Stephan Raue (stephan@openelec.tv)
+# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
 
 PKG_NAME="fakeroot"
 PKG_VERSION="1.23"
@@ -13,4 +14,4 @@ PKG_SECTION="toolchain/devel"
 PKG_SHORTDESC="fakeroot: provides a fake root environment by means of LD_PRELOAD and SYSV IPC (or TCP) trickery."
 PKG_LONGDESC="fakeroot provides a fake root environment by means of LD_PRELOAD and SYSV IPC (or TCP) trickery."
 
-PKG_CONFIGURE_OPTS_HOST="--with-gnu-ld --with-ipc=tcp"
+PKG_CONFIGURE_OPTS_HOST="--with-gnu-ld"

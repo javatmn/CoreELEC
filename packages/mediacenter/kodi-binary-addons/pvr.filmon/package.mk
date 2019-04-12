@@ -3,12 +3,12 @@
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="pvr.filmon"
-PKG_VERSION="e47161e114e44ea09a2d5eaabb2c809edbd1da0d"
-PKG_SHA256="cdcdaa68d4f74a57bd16fe8050b22179a343b2b82614934dcb573b77e1a6655c"
-PKG_REV="2"
+PKG_VERSION="2.4.4-Leia"
+PKG_SHA256="763500fb4a7210569f05dba8307d400e532dd0e72b24f1a1d2cd516695145190"
+PKG_REV="3"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
-PKG_SITE="http://www.kodi.tv"
+PKG_SITE="https://github.com/kodi-pvr/pvr.filmon"
 PKG_URL="https://github.com/kodi-pvr/pvr.filmon/archive/$PKG_VERSION.tar.gz"
 PKG_DEPENDS_TARGET="toolchain kodi-platform jsoncpp"
 PKG_SECTION=""

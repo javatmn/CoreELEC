@@ -1,5 +1,6 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2016-present Team LibreELEC (https://libreelec.tv)
+# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
 
 PKG_NAME="aml-dtbtools"
 PKG_VERSION="cce100f"
@@ -8,6 +9,7 @@ PKG_LICENSE="free"
 PKG_SITE="https://github.com/Wilhansen/aml-dtbtools"
 PKG_URL="https://github.com/Wilhansen/aml-dtbtools/archive/${PKG_VERSION}.tar.gz"
 PKG_LONGDESC="AML DTB Tools"
+PKG_DEPENDS_HOST="gcc:host"
 
 PKG_MAKE_OPTS_HOST="dtbTool"
 

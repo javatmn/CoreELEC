@@ -3,12 +3,12 @@
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="pvr.vbox"
-PKG_VERSION="244adfd38c23b52f9bb62304088d78d797f5354e"
-PKG_SHA256="68963f4e16b936f473f2ae7ae066fba5bd7df9e5a0a022a7b1596c7e08ad1ddf"
-PKG_REV="2"
+PKG_VERSION="4.4.8-Leia"
+PKG_SHA256="7063ee14c222ed797ce6dddca3908d2558ee94b3a2a29fed68bde4ff8f55cd19"
+PKG_REV="3"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
-PKG_SITE="http://www.kodi.tv"
+PKG_SITE="https://github.com/kodi-pvr/pvr.vbox"
 PKG_URL="https://github.com/kodi-pvr/pvr.vbox/archive/$PKG_VERSION.tar.gz"
 PKG_DEPENDS_TARGET="toolchain kodi-platform tinyxml2"
 PKG_SECTION=""

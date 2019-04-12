@@ -3,8 +3,8 @@
 # Copyright (C) 2016-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="alsa-utils"
-PKG_VERSION="1.1.6"
-PKG_SHA256="155caecc40b2220f686f34ba3655a53e3bdbc0586adb1056733949feaaf7d36e"
+PKG_VERSION="1.1.8"
+PKG_SHA256="fd9bf528922b3829a91913b89a1858c58a0b24271a7b5f529923aa9ea12fa4cf"
 PKG_LICENSE="GPL"
 PKG_SITE="http://www.alsa-project.org/"
 PKG_URL="ftp://ftp.alsa-project.org/pub/utils/alsa-utils-$PKG_VERSION.tar.bz2"
@@ -30,7 +30,7 @@ post_makeinstall_target() {
 # so we avoid resetting our soundconfig
   rm -rf $INSTALL/usr/lib/udev/rules.d/90-alsa-restore.rules
 
-  for i in aconnect alsamixer alsaucm amidi aplaymidi arecord arecordmidi aseqdump aseqnet iecset; do
+  for i in aconnect alsamixer amidi aplaymidi arecord arecordmidi aseqdump aseqnet iecset; do
     rm -rf $INSTALL/usr/bin/$i
   done
 

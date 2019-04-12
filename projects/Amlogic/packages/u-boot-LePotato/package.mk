@@ -2,17 +2,19 @@
 # Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
 
 PKG_NAME="u-boot-LePotato"
-PKG_SITE="https://www.denx.de/wiki/U-Boot"
-PKG_DEPENDS_TARGET="toolchain gcc-linaro-aarch64-elf:host gcc-linaro-arm-eabi:host"
+PKG_VERSION="c399719ef82b69cce55160a39ac34be4c1c39ee5"
+PKG_SHA256="ab43ca1ba7b98ec4c15bac8f65a32d9d8c29228cf5ca07d0ad7d06b784b6d642"
 PKG_ARCH="arm aarch64"
 PKG_LICENSE="GPL"
-PKG_LONGDESC="Das U-Boot is a cross-platform bootloader for embedded systems."
-
-PKG_VERSION="56795f800182b42312473b684e3d57c903829fcc"
+PKG_SITE="https://www.denx.de/wiki/U-Boot"
 PKG_URL="https://github.com/CoreELEC/u-boot/archive/$PKG_VERSION.tar.gz"
-PKG_SHA256="951e315a2fc2a1301829b59e42185ec681ae9beac6fd29bff0b8d72c77201d1a"
-PKG_UBOOT_CONFIG="libretech_cc_defconfig"
+PKG_DEPENDS_TARGET="toolchain gcc-linaro-aarch64-elf:host gcc-linaro-arm-eabi:host"
+PKG_LONGDESC="Das U-Boot is a cross-platform bootloader for embedded systems."
 PKG_TOOLCHAIN="manual"
+
+configure_package() {
+  PKG_UBOOT_CONFIG="libretech_cc_defconfig"
+}
 
 pre_make_target() {
   sed -i "s|arm-none-eabi-|arm-eabi-|g" $PKG_BUILD/Makefile $PKG_BUILD/arch/arm/cpu/armv8/gx*/firmware/scp_task/Makefile 2>/dev/null || true

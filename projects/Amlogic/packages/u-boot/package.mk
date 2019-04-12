@@ -1,22 +1,25 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2017-2018 Team LibreELEC (https://libreelec.tv)
 # Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
 
 PKG_NAME="u-boot"
-PKG_SITE="https://www.denx.de/wiki/U-Boot"
-PKG_DEPENDS_TARGET="toolchain gcc-linaro-aarch64-elf:host gcc-linaro-arm-eabi:host"
+PKG_VERSION=""
+PKG_SHA256=""
 PKG_ARCH="arm aarch64"
 PKG_LICENSE="GPL"
+PKG_SITE="https://www.denx.de/wiki/U-Boot"
+PKG_URL=""
+PKG_DEPENDS_TARGET="toolchain gcc-linaro-aarch64-elf:host gcc-linaro-arm-eabi:host"
 PKG_LONGDESC="Das U-Boot is a cross-platform bootloader for embedded systems."
 PKG_TOOLCHAIN="manual"
 
+PKG_CANUPDATE="${PROJECT}*"
+PKG_NEED_UNPACK="$PROJECT_DIR/$PROJECT/bootloader "
+
 for PKG_SUBDEVICE in $SUBDEVICES; do
   PKG_DEPENDS_TARGET+=" u-boot-${PKG_SUBDEVICE}"
+  PKG_NEED_UNPACK+=" $(get_pkg_directory u-boot-${PKG_SUBDEVICE})"
 done
-
-PKG_CANUPDATE="${DEVICE}*"
-PKG_NEED_UNPACK="$PROJECT_DIR/$PROJECT/bootloader"
-[ -n "$SUBDEVICE" ] && PKG_NEED_UNPACK+=" $PROJECT_DIR/$PROJECT/devices/$DEVICE/bootloader"
 
 make_target() {
     : # nothing
@@ -51,4 +54,6 @@ makeinstall_target() {
       sed -e "s/@PROJECT@/${PKG_CANUPDATE}/g" \
           -i $INSTALL/usr/share/bootloader/canupdate.sh
     find_file_path splash/boot-logo.bmp.gz && cp -av ${FOUND_PATH} $INSTALL/usr/share/bootloader
+    find_file_path splash/boot-logo-1080.bmp.gz && cp -av ${FOUND_PATH} $INSTALL/usr/share/bootloader
+    find_file_path splash/timeout-logo-1080.bmp.gz && cp -av ${FOUND_PATH} $INSTALL/usr/share/bootloader
 }

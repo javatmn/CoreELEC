@@ -2,9 +2,9 @@
 # Copyright (C) 2016-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="game.libretro.handy"
-PKG_VERSION="199f1872d60768364ab86d92bd68c73fe5ddd159"
-PKG_SHA256="701067186cb69ed1cc35c5747c0301fa478908d22a06a048dfe0b078607c5c53"
-PKG_REV="108"
+PKG_VERSION="0.97.0.1-Leia"
+PKG_SHA256="c9751ca3ef957c7b65208d9aa5b80efcfa9c46d0567b1c11f29b54b29c8934b8"
+PKG_REV="113"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/kodi-game/game.libretro.handy"

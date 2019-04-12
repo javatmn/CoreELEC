@@ -3,13 +3,13 @@
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="screensaver.matrixtrails"
-PKG_VERSION="b9987ca27ffc82919b856164ac91941dda17200a"
-PKG_SHA256="89e5c75fff9c3f475d8ce733825acb92020f7c5b53068d69b6952c710f8284d4"
-PKG_REV="2"
+PKG_VERSION="v2.2.0-Leia"
+PKG_SHA256="cbc66bf1a9078fe9e426f99e16b005fc261f6b5e1c2e64c19b0055bfc8feac33"
+PKG_REV="3"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
-PKG_SITE="https://github.com/notspiff/screensaver.matrixtrails"
-PKG_URL="https://github.com/notspiff/screensaver.matrixtrails/archive/$PKG_VERSION.tar.gz"
+PKG_SITE="https://github.com/xbmc/screensaver.matrixtrails"
+PKG_URL="https://github.com/xbmc/screensaver.matrixtrails/archive/$PKG_VERSION.tar.gz"
 PKG_DEPENDS_TARGET="toolchain kodi-platform soil"
 PKG_SECTION=""
 PKG_SHORTDESC="screensaver.matrixtrails"

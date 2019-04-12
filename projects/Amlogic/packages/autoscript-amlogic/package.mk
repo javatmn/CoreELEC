@@ -1,10 +1,11 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
+# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
 
 PKG_NAME="autoscript-amlogic"
 PKG_VERSION=""
 PKG_LICENSE="GPL"
-PKG_DEPENDS_TARGET="toolchain"
+PKG_DEPENDS_TARGET="toolchain u-boot-tools-aml:host"
 PKG_LONGDESC="Autoscript package for Amlogic devices"
 PKG_TOOLCHAIN="manual"
 

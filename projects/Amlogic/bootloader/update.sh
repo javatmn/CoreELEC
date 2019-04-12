@@ -1,17 +1,11 @@
 #!/bin/sh
 
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2017-present Team LibreELEC (https://libreelec.tv)
+# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
 
 [ -z "$SYSTEM_ROOT" ] && SYSTEM_ROOT=""
 [ -z "$BOOT_ROOT" ] && BOOT_ROOT="/flash"
-[ -z "$UPDATE_DIR" ] && UPDATE_DIR="/storage/.update"
-
-UPDATE_DTB_IMG="$UPDATE_DIR/dtb.img"
-UPDATE_DTB="$(ls -1 "$UPDATE_DIR"/*.dtb 2>/dev/null | head -n 1)"
-UPDATE_DTB_OVERRIDE_IMG="$UPDATE_DIR/dtb.override.img"
-SUBDEVICE=""
-
 [ -z "$BOOT_PART" ] && BOOT_PART=$(df "$BOOT_ROOT" | tail -1 | awk {' print $1 '})
 if [ -z "$BOOT_DISK" ]; then
   case $BOOT_PART in
@@ -26,6 +20,8 @@ fi
 
 mount -o rw,remount $BOOT_ROOT
 
+SUBDEVICE=""
+
 for arg in $(cat /proc/cmdline); do
   case $arg in
     boot=*)
@@ -39,49 +35,43 @@ for arg in $(cat /proc/cmdline); do
           ;;
       esac
 
-      if [ -f "/proc/device-tree/le-dt-id" ] ; then
-        LE_DT_ID=$(cat /proc/device-tree/le-dt-id)
-        case $LE_DT_ID in
+      if [ -f "/proc/device-tree/coreelec-dt-id" ]; then
+        DT_ID=$(cat /proc/device-tree/coreelec-dt-id)
+      elif [ -f "/proc/device-tree/le-dt-id" ]; then
+        DT_ID=$(cat /proc/device-tree/le-dt-id)
+      fi
+
+      if [ -n "$DT_ID" ]; then
+        case $DT_ID in
           *lepotato)
-	    SUBDEVICE="LePotato"
+            SUBDEVICE="LePotato"
             ;;
-          *odroidc2)
-	    SUBDEVICE="Odroid_C2"
-            ;;
-          *kvim2)
-	    SUBDEVICE="KVIM2"
-            ;;
-          *kvim)
-	    SUBDEVICE="KVIM"
+          *odroid*c2)
+            SUBDEVICE="Odroid_C2"
+            DT_ID="gxbb_p200_2g_odroid_c2"
             ;;
         esac
       fi
 
-      if [ -f "$UPDATE_DTB_OVERRIDE_IMG" ] ; then
-        UPDATE_DTB_SOURCE="$UPDATE_DTB_OVERRIDE_IMG"
-      elif [ -n "$LE_DT_ID" -a -f "$SYSTEM_ROOT/usr/share/bootloader/device_trees/$LE_DT_ID.dtb" ] ; then
-        UPDATE_DTB_SOURCE="$SYSTEM_ROOT/usr/share/bootloader/device_trees/$LE_DT_ID.dtb"
-      elif [ -f "$UPDATE_DTB_IMG" ] ; then
-        UPDATE_DTB_SOURCE="$UPDATE_DTB_IMG"
-      elif [ -f "$UPDATE_DTB" ] ; then
-        UPDATE_DTB_SOURCE="$UPDATE_DTB"
+      if [ -n "$DT_ID" -a -f "$SYSTEM_ROOT/usr/share/bootloader/device_trees/$DT_ID.dtb" ]; then
+        UPDATE_DTB_SOURCE="$SYSTEM_ROOT/usr/share/bootloader/device_trees/$DT_ID.dtb"
       fi
 
-      if [ -f "$UPDATE_DTB_SOURCE" ] ; then
+      if [ -f "$UPDATE_DTB_SOURCE" ]; then
         echo "Updating device tree from $UPDATE_DTB_SOURCE..."
         case $boot in
           /dev/system)
             dd if=/dev/zero of=/dev/dtb bs=256k count=1 status=none
             dd if="$UPDATE_DTB_SOURCE" of=/dev/dtb bs=256k status=none
             ;;
-          /dev/mmc*|LABEL=*)
+          /dev/mmc*|LABEL=*|UUID=*)
             cp -f "$UPDATE_DTB_SOURCE" "$BOOT_ROOT/dtb.img"
             ;;
         esac
       fi
 
       for all_dtb in /flash/*.dtb ; do
-        if [ -f $all_dtb ] ; then
+        if [ -f $all_dtb ]; then
           dtb=$(basename $all_dtb)
           if [ -f $SYSTEM_ROOT/usr/share/bootloader/$dtb ]; then
             echo "Updating $dtb..."
@@ -125,9 +115,21 @@ if [ -f $SYSTEM_ROOT/usr/share/bootloader/${SUBDEVICE}_boot.ini ]; then
   fi
 fi
 
-if [ -f $SYSTEM_ROOT/usr/share/bootloader/boot-logo.bmp.gz ]; then
-  echo "Updating boot logo..."
-  cp -p $SYSTEM_ROOT/usr/share/bootloader/boot-logo.bmp.gz $BOOT_ROOT
+if [ "${SUBDEVICE}" == "Odroid_C2" ]; then
+  if [ -f $SYSTEM_ROOT/usr/share/bootloader/boot-logo.bmp.gz ]; then
+    echo "Updating boot logo..."
+    cp -p $SYSTEM_ROOT/usr/share/bootloader/boot-logo.bmp.gz $BOOT_ROOT
+  fi
+fi
+
+if [ "${SUBDEVICE}" == "LePotato" ]; then
+  if [ -f $SYSTEM_ROOT/usr/share/bootloader/boot-logo-1080.bmp.gz ]; then
+    echo "Updating boot logos..."
+    cp -p $SYSTEM_ROOT/usr/share/bootloader/boot-logo-1080.bmp.gz $BOOT_ROOT
+  fi
+  if [ -f $SYSTEM_ROOT/usr/share/bootloader/timeout-logo-1080.bmp.gz ]; then
+    cp -p $SYSTEM_ROOT/usr/share/bootloader/timeout-logo-1080.bmp.gz $BOOT_ROOT
+  fi
 fi
 
 if [ -f $SYSTEM_ROOT/usr/share/bootloader/${SUBDEVICE}_u-boot -a ! -e /dev/system -a ! -e /dev/boot ]; then
@@ -155,3 +157,8 @@ if [ ! -f $BOOT_ROOT/dtb.img -a -f $BOOT_ROOT/@LEGACY_DTB_NAME@ ]; then
 fi
 
 mount -o ro,remount $BOOT_ROOT
+
+if [ -e "/proc/device-tree/mali@d00c0000/compatible" ] || [ -e "/proc/device-tree/t82x@d00c0000/compatible" ]; then
+  echo "Executing remote-toggle..."
+  $SYSTEM_ROOT/usr/lib/coreelec/remote-toggle
+fi

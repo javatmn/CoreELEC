@@ -1,5 +1,6 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2016-present Team LibreELEC (https://libreelec.tv)
+# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
 
 PKG_NAME="p7zip"
 PKG_VERSION="16.02"
@@ -8,6 +9,7 @@ PKG_LICENSE="GPL"
 PKG_SITE="http://p7zip.sourceforge.net/"
 PKG_URL="http://downloads.sourceforge.net/project/p7zip/p7zip/${PKG_VERSION}/p7zip_${PKG_VERSION}_src_all.tar.bz2"
 PKG_DEPENDS_TARGET="toolchain"
+PKG_DEPENDS_HOST="gcc:host"
 PKG_LONGDESC="p7zip is a port of 7za.exe for POSIX systems like Unix."
 PKG_TOOLCHAIN="manual"
 

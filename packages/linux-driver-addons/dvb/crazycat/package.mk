@@ -1,5 +1,6 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2016-present Team LibreELEC (https://libreelec.tv)
+# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
 
 PKG_NAME="crazycat"
 PKG_VERSION="f77791e13e0a29edeb775383f89e37bb1ed80416"
@@ -19,11 +20,13 @@ PKG_ADDON_NAME="DVB drivers for TBS"
 PKG_ADDON_TYPE="xbmc.service"
 PKG_ADDON_VERSION="${ADDON_VERSION}.${PKG_REV}"
 
-if [ "$PROJECT" = "Amlogic" ]; then
-  PKG_PATCH_DIRS="amlogic"
-  PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET media_tree_aml"
-  PKG_NEED_UNPACK="$PKG_NEED_UNPACK media_tree_aml"
-fi
+configure_package() {
+  if [ "$PROJECT" = "Amlogic" ]; then
+    PKG_PATCH_DIRS="amlogic"
+    PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET media_tree_aml"
+    PKG_NEED_UNPACK="$PKG_NEED_UNPACK media_tree_aml"
+  fi
+}
 
 pre_make_target() {
   export KERNEL_VER=$(get_module_dir)

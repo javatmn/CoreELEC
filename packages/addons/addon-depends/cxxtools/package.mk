@@ -1,5 +1,6 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2009-2016 Stephan Raue (stephan@openelec.tv)
+# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
 
 PKG_NAME="cxxtools"
 PKG_VERSION="2.2.1"
@@ -8,7 +9,7 @@ PKG_LICENSE="GPL-2"
 PKG_SITE="http://www.tntnet.org/cxxtools.html"
 PKG_URL="http://www.tntnet.org/download/${PKG_NAME}-${PKG_VERSION}.tar.gz"
 PKG_DEPENDS_HOST=""
-PKG_DEPENDS_TARGET="toolchain"
+PKG_DEPENDS_TARGET="toolchain cxxtools:host"
 PKG_LONGDESC="Cxxtools is a collection of general-purpose C++ classes."
 PKG_BUILD_FLAGS="+pic"
 
