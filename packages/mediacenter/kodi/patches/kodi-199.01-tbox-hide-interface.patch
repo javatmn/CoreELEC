@@ -1,7 +1,7 @@
-diff --git a/xbmc/platform/linux/network/NetworkLinux.cpp b/xbmc/platform/linux/network/NetworkLinux.cpp
+diff --git a/xbmc/network/linux/NetworkLinux.cpp b/xbmc/network/linux/NetworkLinux.cpp
 index 66d996d..f028202 100644
---- a/xbmc/platform/linux/network/NetworkLinux.cpp
-+++ b/xbmc/platform/linux/network/NetworkLinux.cpp
+--- a/xbmc/network/linux/NetworkLinux.cpp
++++ b/xbmc/network/linux/NetworkLinux.cpp
 @@ -458,6 +458,11 @@ void CNetworkLinux::queryInterfaceList()
        n = strcspn(p, ": \t");
        p[n] = 0;
